@@ -1,0 +1,42 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/mkolotovich/frontend-testing-react-project-lvl1/workflows/hexlet-check/badge.svg)](https://github.com/mkolotovich/frontend-testing-react-project-lvl1/actions)",
+  "main": "src/downloadPage.js",
+  "scripts": {
+    "test": "jest",
+    "testdev": "jest --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkolotovich/frontend-testing-react-project-lvl1.git"
+  },
+  "bin": {
+    "page-loader": "bin/pageLoader.js"
+  },
+  "author": "Mike Kolotovich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mkolotovich/frontend-testing-react-project-lvl1/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/mkolotovich/frontend-testing-react-project-lvl1#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.18.9",
+    "@babel/core": "^7.18.9",
+    "@babel/node": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
+    "@jest/globals": "^27.0.3",
+    "babel-jest": "^27.5.1",
+    "eslint": "^7.27.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "jest": "^27.0.4",
+    "jest-cli": "^27.0.4",
+    "nock": "^13.2.9"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "commander": "^4.1.1"
+  }
+}
