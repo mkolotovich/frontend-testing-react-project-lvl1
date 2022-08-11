@@ -4,8 +4,7 @@
   "description": "[![Actions Status](https://github.com/mkolotovich/frontend-testing-react-project-lvl1/workflows/hexlet-check/badge.svg)](https://github.com/mkolotovich/frontend-testing-react-project-lvl1/actions)",
   "main": "src/downloadPage.js",
   "scripts": {
-    "test1": "jest",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "jest",
     "testWithDebug": "set DEBUG=nock.* & jest"
   },
   "repository": {
@@ -19,9 +18,6 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mkolotovich/frontend-testing-react-project-lvl1/issues"
-  },
-  "jest": {
-    "transform": {}
   },
   "type": "module",
   "homepage": "https://github.com/mkolotovich/frontend-testing-react-project-lvl1#readme",
@@ -44,7 +40,6 @@
     "axios-debug-log": "^0.8.4",
     "cheerio": "*",
     "commander": "^4.1.1",
-    "cross-env": "^7.0.3",
     "debug": "^4.3.4"
   }
 }
