@@ -4,11 +4,34 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import 'axios-debug-log';
 import debug from 'debug';
+// import nock from 'nock';
+// import { fileURLToPath } from 'url';
 
 const { promises: fsp } = fs;
 const logPageLoader = debug('page-loader');
 
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
 const successCode = 200;
+// const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
+// const data = async () => {
+//   nock('https://site.com')
+//     .get('/blog/about')
+//     .reply(200, await fsp.readFile(getFixturePath('site.html'), 'utf-8'));
+//   nock('https://site.com')
+//     .get('/blog/about//photos/me.jpg')
+//     .reply(200, await fsp.readFile(getFixturePath('nodejs.png')));
+//   nock('https://site.com')
+//     .get('/blog/about//blog/about/assets/styles.css')
+//     .reply(200, await fsp.readFile(getFixturePath('styles.css'), 'utf-8'));
+//   nock('https://site.com')
+//     .get('/blog/about//blog/about')
+//     .reply(200, await fsp.readFile(getFixturePath('site.html'), 'utf-8'));
+//   nock('https://site.com')
+//     .get('/assets/scripts.js')
+//     .reply(200);
+// };
 
 const getImages = ($, url, fullDirPath, dirPath, prefix) => {
   const imageTag = $('img');
@@ -131,9 +154,11 @@ const getAssets = (page, url, fullDirPath, dirPath, prefix) => {
     .catch((error) => { throw new Error(error.message); });
 };
 
+// export default async (url, dir = process.cwd()) => {
 export default (url, dir = process.cwd()) => {
+  // await data();
   const myURL = new URL(url);
-  const fileName = myURL.pathname !== '/' ? `${myURL.hostname.replace(/\./g, '-')}${myURL.pathname.replace('/', '-')}.html` : `${myURL.hostname.replace(/\./g, '-')}.html`;
+  const fileName = myURL.pathname !== '/' ? `${myURL.hostname.replace(/\./g, '-')}${myURL.pathname.replace(/\//g, '-')}.html` : `${myURL.hostname.replace(/\./g, '-')}.html`;
   const dirName = myURL.pathname !== '/' ? `${myURL.hostname.replace(/\./g, '-')}${myURL.pathname.replace(/\//g, '-')}_files` : `${myURL.hostname.replace(/\./g, '-')}_files`;
   const assetsName = myURL.pathname !== '/' ? `${myURL.hostname.replace(/\./g, '-')}` : `${myURL.hostname.replace(/\./g, '-')}-`;
   const filePath = path.resolve(process.cwd(), dir, fileName);
