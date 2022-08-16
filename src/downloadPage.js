@@ -4,24 +4,11 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import 'axios-debug-log';
 import debug from 'debug';
-import Listr from 'listr';
 
 const { promises: fsp } = fs;
 const logPageLoader = debug('page-loader');
 
 const successCode = 200;
-
-const showProgress = (el, response) => {
-  const tasks = new Listr([
-    {
-      title: `${el}`,
-      task: () => Promise.resolve(response),
-    },
-  ], { concurrent: true });
-  tasks.run().catch((err) => {
-    console.error(err);
-  });
-};
 
 const getImages = ($, url, fullDirPath, dirPath, prefix) => {
   const imageTag = $('img');
@@ -32,7 +19,7 @@ const getImages = ($, url, fullDirPath, dirPath, prefix) => {
   const promises = src.map((el) => {
     const requestUrl = new URL(el, url);
     if (!el.startsWith('http')) {
-      axios({
+      return axios({
         method: 'get',
         url: `${requestUrl}`,
         responseType: 'stream',
@@ -44,15 +31,16 @@ const getImages = ($, url, fullDirPath, dirPath, prefix) => {
           if (path.extname(el) === '.png' || path.extname(el) === '.jpg') {
             logPageLoader(`${url}/${el}`);
             const normalizedStr = `${prefix}${el.replace(/\//g, '-')}`;
-            showProgress(el, response);
-            return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+          } else {
+            return undefined;
           }
           return response;
         });
     }
     return el;
   });
-  return Promise.all(promises);
+  return promises;
 };
 
 const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
@@ -72,8 +60,8 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
           }
           logPageLoader(`${url}/${el}`);
           const normalizedStr = path.extname(el) === '.css' ? `${prefix}${el.replace(/\//g, '-')}` : `${prefix}${el.replace(/\//g, '-')}.html`;
-          showProgress(el, response);
-          return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+          fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+          return response;
         });
     }
     return el;
@@ -84,7 +72,7 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
       $(this).attr('href', `${dirPath}/${prefix}${normalizedStr}`);
     }
   });
-  return Promise.all(promises);
+  return promises;
 };
 
 const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
@@ -102,8 +90,8 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
           .then((response) => {
             logPageLoader(`${url}/${el}`);
             const normalizedStr = `${prefix}${el.replace(/\//g, '-')}`;
-            showProgress(el, response);
-            return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            return response;
           });
       }
       const elUrl = new URL(el);
@@ -136,7 +124,7 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
       }
     }
   });
-  return Promise.all(promises);
+  return promises;
 };
 
 const getAssets = (page, url, fullDirPath, dirPath, prefix) => {
@@ -144,9 +132,7 @@ const getAssets = (page, url, fullDirPath, dirPath, prefix) => {
   const images = getImages($, url, fullDirPath, dirPath, prefix);
   const links = getLinks($, url, fullDirPath, dirPath, prefix);
   const scripts = getScripts($, url, fullDirPath, dirPath, prefix);
-  return Promise.all([images, links, scripts])
-    .then(() => $.html())
-    .catch((error) => { throw new Error(error.message); });
+  return [$.html(), images, links, scripts];
 };
 
 export default (url, dir = process.cwd()) => {
@@ -175,8 +161,9 @@ export default (url, dir = process.cwd()) => {
       }
     })
     .then((assets) => {
-      fsp.writeFile(filePath, assets);
+      const [html, images, links, scripts] = assets;
+      fsp.writeFile(filePath, html);
       const obj = { filepath: filePath };
-      return obj;
+      return [obj, images, links, scripts];
     });
 };

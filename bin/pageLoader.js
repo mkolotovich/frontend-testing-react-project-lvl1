@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import Listr from 'listr';
 import downloadPage from '../src/downloadPage.js';
 
 const program = new Command();
@@ -15,8 +16,23 @@ program
     const { output } = program.opts();
     downloadPage(url, output)
       .then((obj) => {
-        console.log(`Page was successfully downloaded into ${obj.filepath}`);
-        process.exitCode = 0;
+        const [object, images, links, scripts] = obj;
+        Promise.all([...images, ...links, ...scripts])
+          .then((items) => {
+            items.forEach((el) => {
+              if (el !== undefined) {
+                const tasks = new Listr([{
+                  title: `${el.data.responseUrl}`,
+                  task: () => Promise.resolve(el),
+                }], { concurrent: true });
+                tasks.run();
+              }
+            });
+          })
+          .then(() => {
+            console.log(`Page was successfully downloaded into ${object.filepath}`);
+            process.exitCode = 0;
+          });
       })
       .catch((err) => {
         console.error('error!!!', err.message);
