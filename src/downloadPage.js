@@ -11,6 +11,18 @@ const logPageLoader = debug('page-loader');
 
 const successCode = 200;
 
+const showProgress = (el, response) => {
+  const tasks = new Listr([
+    {
+      title: `${el}`,
+      task: () => Promise.resolve(response),
+    },
+  ], { concurrent: true });
+  tasks.run().catch((err) => {
+    console.error(err);
+  });
+};
+
 const getImages = ($, url, fullDirPath, dirPath, prefix) => {
   const imageTag = $('img');
   const src = Array.from(imageTag).map((element) => $(element).attr('src'));
@@ -18,10 +30,11 @@ const getImages = ($, url, fullDirPath, dirPath, prefix) => {
     $(this).attr('src', `${dirPath}/${prefix}${$(elem).attr('src').replace(/\//g, '-')}`);
   });
   const promises = src.map((el) => {
+    const requestUrl = new URL(el, url);
     if (!el.startsWith('http')) {
       axios({
         method: 'get',
-        url: `${url}/${el}`,
+        url: `${requestUrl}`,
         responseType: 'stream',
       })
         .then((response) => {
@@ -54,10 +67,11 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
   const linkTag = $('link');
   const src = Array.from(linkTag).map((element) => $(element).attr('href'));
   const promises = src.map((el) => {
+    const requestUrl = new URL(el, url);
     if (!el.startsWith('http')) {
       return axios({
         method: 'get',
-        url: `${url}/${el}`,
+        url: `${requestUrl}`,
         responseType: 'stream',
       })
         .then((response) => {
@@ -104,15 +118,7 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
           .then((response) => {
             logPageLoader(`${url}/${el}`);
             const normalizedStr = `${prefix}${el.replace(/\//g, '-')}`;
-            const tasks = new Listr([
-              {
-                title: `${el}`,
-                task: () => Promise.resolve(response),
-              },
-            ], { concurrent: true });
-            tasks.run().catch((err) => {
-              console.error(err);
-            });
+            showProgress(el, response);
             return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
           });
       }
@@ -166,15 +172,13 @@ export default (url, dir = process.cwd()) => {
   const assetsName = myURL.pathname !== '/' ? `${myURL.hostname.replace(/\./g, '-')}` : `${myURL.hostname.replace(/\./g, '-')}-`;
   const filePath = path.resolve(process.cwd(), dir, fileName);
   const dirPath = path.resolve(process.cwd(), dir, dirName);
-  return fsp.mkdir(dirPath)
-    .then(() => {
-      logPageLoader(url);
-      return axios.get(url);
-    })
+  return axios.get(url)
     .then((response) => {
+      logPageLoader(url);
       if (response.status !== successCode) {
         throw new Error(`network error! ${url} responded with status - ${response.status}`);
       }
+      fsp.mkdir(dirPath);
       return getAssets(response.data, url, dirPath, dirName, assetsName);
     })
     .catch((error) => {
