@@ -44,15 +44,7 @@ const getImages = ($, url, fullDirPath, dirPath, prefix) => {
           if (path.extname(el) === '.png' || path.extname(el) === '.jpg') {
             logPageLoader(`${url}/${el}`);
             const normalizedStr = `${prefix}${el.replace(/\//g, '-')}`;
-            const tasks = new Listr([
-              {
-                title: `${el}`,
-                task: () => Promise.resolve(response),
-              },
-            ], { concurrent: true });
-            tasks.run().catch((err) => {
-              console.error(err);
-            });
+            showProgress(el, response);
             return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
           }
           return response;
@@ -80,15 +72,7 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
           }
           logPageLoader(`${url}/${el}`);
           const normalizedStr = path.extname(el) === '.css' ? `${prefix}${el.replace(/\//g, '-')}` : `${prefix}${el.replace(/\//g, '-')}.html`;
-          const tasks = new Listr([
-            {
-              title: `${el}`,
-              task: () => Promise.resolve(response),
-            },
-          ], { concurrent: true });
-          tasks.run().catch((err) => {
-            console.error(err);
-          });
+          showProgress(el, response);
           return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
         });
     }
