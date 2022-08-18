@@ -32,7 +32,7 @@ const getImages = ($, url, fullDirPath, dirPath, prefix) => {
           if (path.extname(el) === '.png' || path.extname(el) === '.jpg') {
             logPageLoader(`${url}/${el}`);
             const normalizedStr = `${prefix}${el.replace(/\//g, '-')}`;
-            fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            response.data.pipe(fs.createWriteStream(path.join(fullDirPath, normalizedStr)));
           } else {
             return undefined;
           }
