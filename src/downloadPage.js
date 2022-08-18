@@ -53,6 +53,7 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
       return axios({
         method: 'get',
         url: `${requestUrl}`,
+        responseType: 'stream',
       })
         .then((response) => {
           if (response.status !== successCode) {
@@ -60,7 +61,7 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
           }
           logPageLoader(`${url}/${el}`);
           const normalizedStr = path.extname(el) === '.css' ? `${prefix}${el.replace(/\//g, '-')}` : `${prefix}${el.replace(/\//g, '-')}.html`;
-          fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+          response.data.pipe(fs.createWriteStream(path.join(fullDirPath, normalizedStr)));
           return response;
         });
     }
