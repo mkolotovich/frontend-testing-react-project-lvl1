@@ -107,7 +107,8 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
               throw new Error(`network error! ${el} responded with status - ${response.status}`);
             }
             const normalizedStr = `${prefix}${elUrl.pathname.replace(/\//g, '-')}`;
-            return fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            fsp.writeFile(path.join(fullDirPath, normalizedStr), response.data);
+            return response;
           });
       }
     }
