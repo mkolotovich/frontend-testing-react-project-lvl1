@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import 'axios-debug-log';
 import debug from 'debug';
+import Listr from 'listr';
 
 const { promises: fsp } = fs;
 const logPageLoader = debug('page-loader');
@@ -64,7 +65,7 @@ const getLinks = ($, url, fullDirPath, dirPath, prefix) => {
           return response;
         });
     }
-    return el;
+    return undefined;
   });
   $('link').each(function modify(i, elem) {
     if (!$(elem).attr('href').startsWith('http')) {
@@ -110,7 +111,7 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
           });
       }
     }
-    return el;
+    return undefined;
   });
   $('script').each(function modify(i, elem) {
     if ($(elem).attr('src') !== undefined) {
@@ -148,9 +149,10 @@ export default (url, dir = process.cwd()) => {
       if (response.status !== successCode) {
         throw new Error(`network error! ${url} responded with status - ${response.status}`);
       }
-      fsp.mkdir(dirPath);
-      return getAssets(response.data, url, dirPath, dirName, assetsName);
+      return response;
     })
+    .then((response) => fsp.mkdir(dirPath)
+      .then(() => getAssets(response.data, url, dirPath, dirName, assetsName)))
     .catch((error) => {
       if (error.response) {
         throw new Error(`network error! ${url} responded with status - ${error.response.status}`);
@@ -164,6 +166,18 @@ export default (url, dir = process.cwd()) => {
       const [html, images, links, scripts] = assets;
       fsp.writeFile(filePath, html);
       const obj = { filepath: filePath };
-      return [obj, images, links, scripts];
+      return Promise.all([...images, ...links, ...scripts])
+        .then((items) => {
+          items.forEach((el) => {
+            if (el !== undefined) {
+              const tasks = new Listr([{
+                title: `${el.data.responseUrl}`,
+                task: () => Promise.resolve(el),
+              }], { concurrent: true });
+              tasks.run();
+            }
+          });
+          return obj;
+        });
     });
 };
