@@ -86,7 +86,6 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
         return axios({
           method: 'get',
           url: `${url}/${el}`,
-          responseType: 'stream',
         })
           .then((response) => {
             logPageLoader(`${url}/${el}`);
@@ -100,7 +99,6 @@ const getScripts = ($, url, fullDirPath, dirPath, prefix) => {
         return axios({
           method: 'get',
           url: `${el}`,
-          responseType: 'stream',
         })
           .then((response) => {
             if (response.status !== successCode) {
