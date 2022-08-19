@@ -91,7 +91,7 @@ test('network error - incorrect assets', async () => {
     .reply(404);
   nock('https://ru.hexlet.io')
     .get('/assets/application.css')
-    .reply(404, await fsp.readFile(getFixturePath('styles.css'), 'utf-8'));
+    .reply(404);
   nock('https://ru.hexlet.io')
     .get('/courses')
     .reply(404);
