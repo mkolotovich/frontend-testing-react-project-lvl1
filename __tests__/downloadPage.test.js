@@ -97,7 +97,7 @@ test('network error - incorrect assets', async () => {
     .reply(404);
   nock('https://ru.hexlet.io')
     .get('/packs/js/runtime.js')
-    .reply(404, await fsp.readFile(getFixturePath('script.js'), 'utf-8'));
+    .reply(404);
   dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   await expect(downloadPage('https://ru.hexlet.io/courses', '/usr')).rejects.toThrow();
 });
