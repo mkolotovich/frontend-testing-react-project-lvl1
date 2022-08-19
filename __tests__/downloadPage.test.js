@@ -1,16 +1,16 @@
 // import { test, expect, describe } from '@jest/globals';
 import { test, expect } from '@jest/globals';
-// import * as path from 'path';
-// import * as fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 import nock from 'nock';
-// import os from 'os';
+import os from 'os';
 import downloadPage from '../src/downloadPage.js';
 
-// const { promises: fsp } = fs;
+const { promises: fsp } = fs;
 
-// const getFixturePath = (filename) => path.join(process.cwd(), '__fixtures__', filename);
+const getFixturePath = (filename) => path.join(process.cwd(), '__fixtures__', filename);
 
-// let dir;
+let dir;
 
 // const data = async () => {
 //   nock('https://ru.hexlet.io')
@@ -78,6 +78,27 @@ import downloadPage from '../src/downloadPage.js';
 
 test('network error', async () => {
   nock.disableNetConnect();
+  await expect(downloadPage('https://ru.hexlet.io/courses', '/usr')).rejects.toThrow();
+});
+
+test('network error - incorrect assets', async () => {
+  nock.disableNetConnect();
+  nock('https://ru.hexlet.io')
+    .get('/courses')
+    .reply(200, await fsp.readFile(getFixturePath('sourceWithAliases.html'), 'utf-8'));
+  nock('https://ru.hexlet.io')
+    .get('/assets/professions/nodejs.png')
+    .reply(404, await fsp.readFile(getFixturePath('nodejs.png')));
+  nock('https://ru.hexlet.io')
+    .get('/assets/application.css')
+    .reply(404, await fsp.readFile(getFixturePath('styles.css'), 'utf-8'));
+  nock('https://ru.hexlet.io')
+    .get('/courses')
+    .reply(404, await fsp.readFile(getFixturePath('sourceWithAliases.html'), 'utf-8'));
+  nock('https://ru.hexlet.io')
+    .get('/packs/js/runtime.js')
+    .reply(404, await fsp.readFile(getFixturePath('script.js'), 'utf-8'));
+  dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   await expect(downloadPage('https://ru.hexlet.io/courses', '/usr')).rejects.toThrow();
 });
 
