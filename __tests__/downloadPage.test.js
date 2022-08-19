@@ -85,7 +85,7 @@ test('network error - incorrect assets', async () => {
   nock.disableNetConnect();
   nock('https://ru.hexlet.io')
     .get('/courses')
-    .reply(200, await fsp.readFile(getFixturePath('sourceWithAliases.html'), 'utf-8'));
+    .reply(200);
   nock('https://ru.hexlet.io')
     .get('/assets/professions/nodejs.png')
     .reply(404, await fsp.readFile(getFixturePath('nodejs.png')));
@@ -94,7 +94,7 @@ test('network error - incorrect assets', async () => {
     .reply(404, await fsp.readFile(getFixturePath('styles.css'), 'utf-8'));
   nock('https://ru.hexlet.io')
     .get('/courses')
-    .reply(404, await fsp.readFile(getFixturePath('sourceWithAliases.html'), 'utf-8'));
+    .reply(404);
   nock('https://ru.hexlet.io')
     .get('/packs/js/runtime.js')
     .reply(404, await fsp.readFile(getFixturePath('script.js'), 'utf-8'));
