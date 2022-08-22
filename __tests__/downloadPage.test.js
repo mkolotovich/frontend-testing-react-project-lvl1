@@ -3,16 +3,13 @@ import {
 } from '@jest/globals';
 import * as path from 'path';
 import * as fs from 'fs';
-import { fileURLToPath } from 'url';
 import nock from 'nock';
 import os from 'os';
 import downloadPage from '../src/downloadPage.js';
 
 const { promises: fsp } = fs;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
+const getFixturePath = (filename) => path.join(process.cwd(), '__fixtures__', filename);
 
 let dir;
 
