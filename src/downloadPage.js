@@ -25,7 +25,7 @@ const downloadAssets = ($, url, fullDirPath) => {
     return axios({
       method: 'get',
       url: `${requestUrl}`,
-      responseType: 'stream',
+      responseType: 'arraybuffer',
     })
       .then((response) => {
         logPageLoader(`${url}/${el}`);
