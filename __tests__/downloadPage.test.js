@@ -22,7 +22,7 @@ test('parsing error', async () => {
   nock('https://ru.hexlet.io')
     .get('/courses')
     .reply(200, '');
-  await expect(downloadPage('https://ru.hexlet.io/courses', dir)).rejects.toThrow(new Error('parsing error! page is not HTML format!'));
+  await expect(downloadPage('https://ru.hexlet.io/courses', dir)).rejects.toThrow(new Error('parsing error! page is not valid!'));
 });
 
 test('dir read error', async () => {
